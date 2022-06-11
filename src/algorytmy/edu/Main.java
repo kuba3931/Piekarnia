@@ -16,13 +16,22 @@ public class Main {
         Scanner input = new Scanner(System.in);
         int choice = input.nextInt();
 
-        switch (choice) {
-            case 1 -> person_creator();
-            case 2 -> people_sorted_list();
-            case 3 -> Add_lesson();
-            case 4 -> lesson_print_menu(true);
-            case 5 -> Add_Invoice();
-            case 6 -> invoice_printer();
+        try {
+            switch (choice) {
+                case 1 -> person_creator();
+                case 2 -> people_sorted_list();
+                case 3 -> Add_lesson();
+                case 4 -> lesson_print_menu(true);
+                case 5 -> Add_Invoice();
+                case 6 -> invoice_printer();
+                default -> {
+                    System.out.println("Niepoprawny wybor");
+                    main_menu();
+                }
+            }
+        } catch (InputMismatchException e) {
+            System.out.println("Wprowadz liczba od 1 do 6 aby przejsc dalej");
+            main_menu();
         }
     }
 
@@ -34,20 +43,27 @@ public class Main {
 
         new_person.setRandUuid();
 
-        System.out.println("Podaj imie osoby:");
-        new_person.name = input.nextLine();
 
-        System.out.println("Podaj nazwisko osoby:");
-        new_person.surname = input.nextLine();
+        try {
+            System.out.println("Podaj imie osoby:");
+            new_person.name = input.nextLine();
 
-        System.out.println("Podaj email osoby:");
-        new_person.email = input.nextLine();
+            System.out.println("Podaj nazwisko osoby:");
+            new_person.surname = input.nextLine();
 
-        System.out.println("Podaj numer telefonu osoby:");
-        new_person.phone_number = input.nextInt();
+            System.out.println("Podaj email osoby:");
+            new_person.email = input.nextLine();
 
-        System.out.println("Podaj status osoby:\n1.Uczen 2.Rodzic 3.Korepetytor 4.Administator");
-        new_person.status = input.nextInt();
+            System.out.println("Podaj numer telefonu osoby:");
+            new_person.phone_number = input.nextInt();
+
+            System.out.println("Podaj status osoby:\n1.Uczen 2.Rodzic 3.Korepetytor 4.Administator");
+            new_person.status = input.nextInt();
+
+        } catch(InputMismatchException e){
+            System.out.println("Wprowadzono zly rodzaj danych sprobuj ponownie\n");
+            person_creator();
+        }
 
         switch (new_person.status){
             case 1 -> {
@@ -65,6 +81,10 @@ public class Main {
                 new_person.discord_name = input.nextLine();
                 System.out.println("Podaj stawke godzinowa:");
                 new_person.hour_rate = input.nextInt();
+            }
+            default -> {
+                System.out.println("Niepoprawny typ osoby\n");
+                person_creator();
             }
         }
 
@@ -212,22 +232,32 @@ public class Main {
         new_lesson.RandLesson_id();
         Scanner lesson_input = new Scanner(System.in);
 
-        System.out.println("Podaj date lekcji w formacie (dd.mm.yy)");
-        new_lesson.lesson_date = lesson_input.nextLine();
-        System.out.println("Podaj godzine rozpoczecia lekcji w formacie (hh:mm)");
-        new_lesson.start_time = lesson_input.nextLine();
-        System.out.println("Podaj dlugosc lekcji w godz (np. 1.5)");
-        new_lesson.duration = lesson_input.nextFloat();
-        System.out.println("Standardowa stawka ucznia (tak/nie)?");
-        lesson_input.reset();
-        String filler = lesson_input.nextLine();
-        String rate_choice = lesson_input.nextLine();
+        String rate_choice = null;
+        try {
+            System.out.println("Podaj date lekcji w formacie (dd.mm.yy)");
+            new_lesson.lesson_date = lesson_input.nextLine();
+            System.out.println("Podaj godzine rozpoczecia lekcji w formacie (hh:mm)");
+            new_lesson.start_time = lesson_input.nextLine();
+            System.out.println("Podaj dlugosc lekcji w godz (np. 1.5)");
+            new_lesson.duration = lesson_input.nextFloat();
+            System.out.println("Standardowa stawka ucznia (tak/nie)?");
+            String filler = lesson_input.nextLine();
+            rate_choice = lesson_input.nextLine();
+        } catch (InputMismatchException e) {
+            System.out.println("Podano dane w zlym formacie");
+            Add_lesson();
+        }
 
         int rate = 0;
 
-        if(!Objects.equals(rate_choice, "tak")){
+        if (!Objects.equals(rate_choice, "tak")) {
             System.out.println("Podaj stawke godzinowa");
-            rate = lesson_input.nextInt();
+            try {
+                rate = lesson_input.nextInt();
+            } catch (InputMismatchException e) {
+                System.out.println("Podano dane w zlym formacie");
+                Add_lesson();
+            }
         }
 
         ArrayList<Person> lesson_people = new ArrayList<>();
@@ -252,7 +282,14 @@ public class Main {
             i++;
         }
 
-        int student_choice = lesson_input.nextInt() - 1;
+        int student_choice = 0;
+        try {
+            student_choice = lesson_input.nextInt() - 1;
+        } catch (InputMismatchException e) {
+            System.out.println("Podano dane w zlym formacie");
+            Add_lesson();
+        }
+
         Person chosen_student = students.get(student_choice);
 
         new_lesson.student_uuid = chosen_student.uuid;
@@ -267,29 +304,44 @@ public class Main {
             i++;
         }
 
-        int tutor_choice = lesson_input.nextInt() - 1;
+        int tutor_choice = 0;
+        try {
+            tutor_choice = lesson_input.nextInt() - 1;
+        } catch (InputMismatchException e) {
+            System.out.println("Podano dane w zlym formacie");
+            Add_lesson();
+        }
+
         Person chosen_tutor = tutors.get(tutor_choice);
 
         new_lesson.tutor_uuid = chosen_tutor.uuid;
         System.out.println("Wybrano korepetytora: " + chosen_tutor.name + " " + chosen_tutor.surname);
 
-        if(!Objects.equals(rate_choice, "tak")){
+        if (!Objects.equals(rate_choice, "tak")) {
             new_lesson.cost = new_lesson.duration * rate;
-        }
-        else{
+        } else {
             new_lesson.cost = new_lesson.duration * chosen_student.hour_rate;
         }
 
-        new_lesson.Print_Lesson_Full(chosen_student,chosen_tutor);
+        new_lesson.Print_Lesson_Full(chosen_student, chosen_tutor);
 
         lesson_input.reset();
         System.out.print("\nCo teraz?\n1. Zapisz lekcje do bazy\n2. Utworz jeszcze raz\n3. Powrot do menu");
-        int choice = lesson_input.nextInt();
 
-        switch (choice) {
-            case 1 -> save_lesson(new_lesson);
-            case 2 -> Add_lesson();
-            case 3 -> main_menu();
+        try {
+            int choice = lesson_input.nextInt();
+
+            switch (choice) {
+                case 1 -> save_lesson(new_lesson);
+                case 2 -> Add_lesson();
+                case 3 -> main_menu();
+                default -> {
+                    System.out.println("Nieprawidlowy wybor");
+                    Add_lesson();
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Nieprawidlowy typ danych");
         }
     }
 
@@ -357,7 +409,6 @@ public class Main {
         }
     }
 
-    // lesson printer methods
     public static HashMap<Lesson, ArrayList<Person>> lesson_print_menu(boolean print){
 
         ArrayList<Lesson> semester = new ArrayList<>();
@@ -543,6 +594,7 @@ public class Main {
         return Filtered_Map;
     }
 
+    // selection/filter methods
     public static Person tutor_select() {
         ArrayList<Person> people = new ArrayList<>();
         ArrayList<Person> tutors = new ArrayList<>();
@@ -685,12 +737,10 @@ public class Main {
         HashMap<Lesson, ArrayList<Person>> Unfiltered_Lessons = lesson_print_menu(false);
         HashMap<Lesson, ArrayList<Person>> Filtered_Lessons = new HashMap<>();
 
-
         new_invoice.invoice_id = UUID.randomUUID();
 
         System.out.println("Podaj date wystawienia faktury w formacie (dd.mm.yy)");
         new_invoice.issue_date = invoice_input.nextLine();
-
 
         Person Master = admin_select();
 
@@ -699,6 +749,7 @@ public class Main {
                 1. Faktura dla rodzica
                 2. Faktura dla ucznia
                 3. Wyplata korepetytora""");
+
         int type_choice = invoice_input.nextInt();
         new_invoice.invoice_type = type_choice;
 
@@ -723,6 +774,7 @@ public class Main {
                 1. Platnosc za zajecia w danym miesiacu
                 2. Platnosc za zajecia ogolna
                 3. Usluga dodatkowa""");
+
         int service_choice = invoice_input.nextInt();
         new_invoice.service_type = service_choice;
 
