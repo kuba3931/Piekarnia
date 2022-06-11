@@ -7,33 +7,22 @@ public class Main {
 
     // start methods
     public static void main(String[] args) {
-
         main_menu();
-
     }
 
     public static void main_menu() {
-        System.out.print("""
-                
-                 _ __   __ _ (_) _ _    _ __   ___  _ _  _  _\s
-                | '  \\ / _` || || ' \\  | '  \\ / -_)| ' \\| || |
-                |_|_|_|\\__,_||_||_||_| |_|_|_|\\___||_||_|\\_,_|
-                                                             \s
-                1. Dodaj nowa osobe
-                2. Lista osob
-                3. Dodaj Lekcje
-                4. Lista lekcji
-                5. Dodaj Fakture\n""");
 
-
+        Decorations.main_decor();
         Scanner input = new Scanner(System.in);
         int choice = input.nextInt();
+
         switch (choice) {
             case 1 -> person_creator();
             case 2 -> people_sorted_list();
             case 3 -> Add_lesson();
             case 4 -> lesson_print_menu(true);
             case 5 -> Add_Invoice();
+            case 6 -> invoice_printer();
         }
     }
 
@@ -41,7 +30,6 @@ public class Main {
     public static void person_creator() {
 
         Scanner input = new Scanner(System.in);
-
         Person new_person = new Person();
 
         new_person.setRandUuid();
@@ -97,6 +85,7 @@ public class Main {
     public static void save_person(Person new_person) {
 
         File person_file = new File("person_db.csv");
+
         try {
             FileWriter person_writer = new FileWriter(person_file, true);
             BufferedWriter person_buffered = new BufferedWriter(person_writer);
@@ -119,12 +108,12 @@ public class Main {
     }
 
     public static void get_people_from_file(ArrayList<Person> people) {
+
         File person_file = new File("person_db.csv");
         String line = "";
 
         try {
             BufferedReader people_BFreader = new BufferedReader(new FileReader(person_file));
-
             people_BFreader.readLine();
 
             while ((line = people_BFreader.readLine()) != null) {
@@ -159,7 +148,6 @@ public class Main {
 
     public static void people_sorted_list() {
 
-
         System.out.println("Posortowana lista osob:");
         ArrayList<Person> people = new ArrayList<>();
         ArrayList<Person> students = new ArrayList<>();
@@ -177,6 +165,7 @@ public class Main {
                 case 4 -> admins.add(p);
             }
         }
+
         int i = 1;
 
         System.out.println("\nLista Uczniow:");
@@ -294,7 +283,7 @@ public class Main {
         new_lesson.Print_Lesson_Full(chosen_student,chosen_tutor);
 
         lesson_input.reset();
-        System.out.print("\nCo teraz?\n1. Zapisz osobe do bazy\n2. Utworz jeszcze raz\n3. Powrot do menu\n");
+        System.out.print("\nCo teraz?\n1. Zapisz lekcje do bazy\n2. Utworz jeszcze raz\n3. Powrot do menu");
         int choice = lesson_input.nextInt();
 
         switch (choice) {
@@ -622,17 +611,17 @@ public class Main {
 
         int i = 1;
 
-        System.out.println("\nWybierz rodzica:");
+        System.out.println("Wybierz rodzica:");
 
         for(Person p : parents){
             System.out.println(i + ". " + p.name + " " + p.surname);
             i++;
         }
 
-        Scanner lesson_month_input = new Scanner(System.in);
-        int chosen_student_index = lesson_month_input.nextInt() - 1 ;
+        Scanner choice = new Scanner(System.in);
+        int chosen_parent_index = choice.nextInt() - 1 ;
 
-        return parents.get(chosen_student_index);
+        return parents.get(chosen_parent_index);
     }
 
     public static Person admin_select() {
@@ -649,7 +638,7 @@ public class Main {
 
         int i = 1;
 
-        System.out.println("\nWybierz adminstatora:");
+        System.out.println("Wybierz adminstatora:");
 
         for(Person p : admins){
             System.out.println(i + ". " + p.name + " " + p.surname);
@@ -657,9 +646,9 @@ public class Main {
         }
 
         Scanner lesson_month_input = new Scanner(System.in);
-        int chosen_student_index = lesson_month_input.nextInt() - 1 ;
+        int chosen_admin_index = lesson_month_input.nextInt() - 1 ;
 
-        return admins.get(chosen_student_index);
+        return admins.get(chosen_admin_index);
     }
 
     public static int month_select() {
@@ -702,14 +691,14 @@ public class Main {
         System.out.println("Podaj date wystawienia faktury w formacie (dd.mm.yy)");
         new_invoice.issue_date = invoice_input.nextLine();
 
+
         Person Master = admin_select();
 
         System.out.println("""
                 Wybierz rodzaj faktury:
                 1. Faktura dla rodzica
                 2. Faktura dla ucznia
-                3. Wyplata korepetytora 
-                """);
+                3. Wyplata korepetytora""");
         int type_choice = invoice_input.nextInt();
         new_invoice.invoice_type = type_choice;
 
@@ -720,7 +709,6 @@ public class Main {
                 b = 3;
             }
             case 2 -> {
-                Payer = Student;
                 a = 4;
                 b = 3;
             }
@@ -734,8 +722,7 @@ public class Main {
                 Wybierz usluge do faktury:
                 1. Platnosc za zajecia w danym miesiacu
                 2. Platnosc za zajecia ogolna
-                3. Usluga dodatkowa
-                """);
+                3. Usluga dodatkowa""");
         int service_choice = invoice_input.nextInt();
         new_invoice.service_type = service_choice;
 
@@ -743,14 +730,43 @@ public class Main {
             case 1 -> {
                 Filtered_Lessons = master_lesson_sorter_printer(Unfiltered_Lessons, a, false);
 
+                if(type_choice == 1 || type_choice == 2) {
+                    new_invoice.service = "Oplata za korepetycje w miesiacu";
+                }
+                else{
+                    new_invoice.service = "Wyplata dla korepetytora za miesiac";
+                }
             }
-            case 2 -> Filtered_Lessons = master_lesson_sorter_printer(Unfiltered_Lessons, b, false);
-            case 3 -> student_select();
+            case 2 -> {
+                Filtered_Lessons = master_lesson_sorter_printer(Unfiltered_Lessons, b, false);
+                if(type_choice == 1 || type_choice == 2) {
+                    new_invoice.service = "Oplata za korepetycje w zestawieniu ogolnym";
+                }
+                else{
+                    new_invoice.service = "Wyplata dla korepetytora w zestawieniu ogolnym";
+                }
+
+            }
+            case 3 -> {
+                if(type_choice == 1 || type_choice == 2) {
+                    Student = student_select();
+                    System.out.println("Podaj usluge:");
+                    new_invoice.service = invoice_input.nextLine();
+                    new_invoice.service = invoice_input.nextLine();
+                    System.out.println("Podaj koszt uslugi:");
+                }
+                else{
+                    Tutor = tutor_select();
+                    System.out.println("Podaj przyczyne doplaty:");
+                    new_invoice.service = invoice_input.nextLine();
+                    new_invoice.service = invoice_input.nextLine();
+                    System.out.println("Podaj koszt wyplaty:");
+                }
+                new_invoice.pay_amount = invoice_input.nextFloat();
+            }
         }
 
-        System.out.println(Filtered_Lessons);
-        int lesson_count = Filtered_Lessons.size();
-        System.out.println(lesson_count);
+        new_invoice.int_lesson_count = Filtered_Lessons.size();
 
         for (HashMap.Entry<Lesson, ArrayList<Person>> entry : Filtered_Lessons.entrySet()) {
             A = entry.getKey();
@@ -760,13 +776,189 @@ public class Main {
             new_invoice.pay_amount += A.cost;
         }
 
-        if (A != null) {
-            new_invoice.int_month = A.getMonth(A.lesson_date);
+        if(type_choice == 2){
+            Payer = Student;
         }
 
+        if (A != null) {
+            new_invoice.int_lesson_month = A.getMonth(A.lesson_date);
+        }
+        if(service_choice == 2 || service_choice == 3){
+            new_invoice.int_lesson_month = 0;
+        }
 
-        new_invoice.Print_Invoice(Payer, Student, Tutor, Master, lesson_count);
+        if (Payer != null) {
+            new_invoice.payer_id = Payer.uuid;
+        }
+        if (Student != null) {
+            new_invoice.student_id = Student.uuid;
+        }
+        if (Tutor != null) {
+            new_invoice.tutor_id = Tutor.uuid;
+        }
+
+        new_invoice.master_id = Master.uuid;
 
 
+        try {
+            new_invoice.Print_Invoice(Payer, Student, Tutor, Master);
+        }
+        catch(Exception e){
+            Decorations.error();
+            main_menu();
+        }
+
+        invoice_input.reset();
+        System.out.print("\nCo teraz?\n1. Zapisz fakture do bazy\n2. Utworz jeszcze raz\n3. Powrot do menu\n");
+        int choice = invoice_input.nextInt();
+
+        switch (choice) {
+            case 1 -> save_invoice(new_invoice);
+            case 2 -> Add_Invoice();
+            case 3 -> main_menu();
+        }
+    }
+
+    public static void save_invoice(Invoice new_invoice) {
+
+        File lesson_file = new File("invoice_db.csv");
+
+        try {
+            FileWriter invoice_writer = new FileWriter(lesson_file, true);
+            BufferedWriter invoice_buffered = new BufferedWriter(invoice_writer);
+            PrintWriter invoice_printer = new PrintWriter(invoice_buffered);
+
+            invoice_printer.println(new_invoice.invoice_id + "," + new_invoice.issue_date + ","
+                    + new_invoice.payer_id + "," + new_invoice.student_id + "," +
+                    new_invoice.tutor_id + "," + new_invoice.master_id + "," + new_invoice.pay_amount +
+                    "," + new_invoice.invoice_type + "," + new_invoice.service_type +
+                    "," + new_invoice.service + "," + new_invoice.int_lesson_month + "," + new_invoice.int_lesson_count);
+
+            invoice_printer.flush();
+            invoice_printer.close();
+
+            System.out.println("Faktura " + new_invoice.invoice_id + " zostala dodana do bazy");
+
+        } catch (IOException e) {
+            System.out.println("Operacja zakonczona niepowodzeniem!");
+        }
+
+        main_menu();
+
+    }
+
+    public static ArrayList<Invoice> get_invoice_from_file(){
+
+        ArrayList<Invoice> payout = new ArrayList<>();
+        File lesson_file = new File("invoice_db.csv");
+        String line = "";
+
+        try {
+            BufferedReader invoice_BFreader = new BufferedReader(new FileReader(lesson_file));
+
+            invoice_BFreader.readLine();
+
+            while ((line = invoice_BFreader.readLine()) != null) {
+
+                Invoice I = new Invoice();
+
+                String[] values = line.split(",");
+
+                String StrInvoiceId = values[0];
+                String StrDate = values[1];
+                String StrPayerId = values[2];
+                String StrStudentId = values[3];
+                String StrTutorId = values[4];
+                String StrMasterId = values[5];
+                String StrPayAmount = values[6];
+                String StrInType = values[7];
+                String StrServType = values[8];
+                String StrService = values[9];
+                String StrMonth = values[10];
+                String StrCount = values[11];
+
+                I.issue_date = StrDate;
+                I.service = StrService;
+
+                I.invoice_id = UUID.fromString(StrInvoiceId);
+                I.master_id = UUID.fromString(StrMasterId);
+
+                if (!Objects.equals(StrPayerId, "null")) {
+                    I.payer_id = UUID.fromString(StrPayerId);
+                }
+                if (!Objects.equals(StrStudentId, "null")) {
+                    I.student_id = UUID.fromString(StrStudentId);
+                }
+                if (!Objects.equals(StrTutorId, "null")) {
+                    I.tutor_id = UUID.fromString(StrTutorId);
+                }
+
+                I.pay_amount = Float.parseFloat(StrPayAmount);
+                I.invoice_type = Integer.parseInt(StrInType);
+                I.service_type = Integer.parseInt(StrServType);
+                I.int_lesson_month = Integer.parseInt(StrMonth);
+                I.int_lesson_count = Integer.parseInt(StrCount);
+                payout.add(I);
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return payout;
+    }
+
+    public static void invoice_printer() {
+
+        int a = 0;
+        ArrayList<Invoice> inv_print = new ArrayList<>();
+        ArrayList<Invoice> inv_all = get_invoice_from_file();
+        ArrayList<Person> people = new ArrayList<>();
+        get_people_from_file(people);
+
+        Person Payer = new Person();
+        Person Student = new Person();
+        Person Tutor = new Person();
+        Person Master = new Person();
+
+        Scanner lesson_list_input = new Scanner(System.in);
+
+        System.out.println("""
+                Jak posortowac faktury?
+                1. Wszystkie
+                2. Wszytskie z danego miesiaca""");
+
+        int choice = lesson_list_input.nextInt();
+
+        if(choice == 2){
+            a = month_select();
+        }
+
+        for (Invoice I : inv_all) {
+
+            for (Person P : people) {
+                if (Objects.equals(I.payer_id, P.uuid)) {
+                    Payer = P;
+                }
+                if (Objects.equals(I.student_id, P.uuid)) {
+                    Student = P;
+                }
+                if (Objects.equals(I.tutor_id, P.uuid)) {
+                    Tutor = P;
+                }
+                if (Objects.equals(I.master_id, P.uuid)) {
+                    Master = P;
+                }
+            }
+
+            if (choice == 2) {
+
+                if (I.getMonth(I.issue_date) == a) {
+                    I.Print_Invoice(Payer, Student, Tutor, Master);
+                }
+            } else {
+                I.Print_Invoice(Payer, Student, Tutor, Master);
+            }
+        }
     }
 }

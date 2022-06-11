@@ -13,6 +13,31 @@ public class Decorations {
         this.decor_int = decor_int;
     }
 
+    public static void error(){
+        System.out.println("""
+                     ____ ____ ____ ____ ____\s
+                    ||E |||r |||r |||o |||r ||
+                    ||__|||__|||__|||__|||__||
+                    |/__\\|/__\\|/__\\|/__\\|/__\\|
+                    """);
+    }
+
+    public static void main_decor(){
+        System.out.print("""
+                
+                 _ __   __ _ (_) _ _    _ __   ___  _ _  _  _\s
+                | '  \\ / _` || || ' \\  | '  \\ / -_)| ' \\| || |
+                |_|_|_|\\__,_||_||_||_| |_|_|_|\\___||_||_|\\_,_|
+                                                             \s
+                1. Dodaj nowa osobe
+                2. Lista osob
+                3. Dodaj Lekcje
+                4. Lista lekcji
+                5. Dodaj Fakture
+                6. Wyswietl Faktury
+                """);
+    }
+
     public static void months(){
         System.out.println("Wybierz miesiac:");
         System.out.println("""
